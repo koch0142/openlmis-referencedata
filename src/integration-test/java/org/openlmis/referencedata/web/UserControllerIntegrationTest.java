@@ -1,17 +1,7 @@
 package org.openlmis.referencedata.web;
 
-import static java.util.Collections.singletonList;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-
 import com.google.common.collect.Sets;
-
+import guru.nidi.ramltester.junit.RamlMatchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -53,13 +43,21 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
-import guru.nidi.ramltester.junit.RamlMatchers;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import static java.util.Collections.singletonList;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 
 @SuppressWarnings({"PMD.TooManyMethods","PMD.UnusedPrivateField"})
 public class UserControllerIntegrationTest extends BaseWebIntegrationTest {
@@ -84,6 +82,7 @@ public class UserControllerIntegrationTest extends BaseWebIntegrationTest {
   private static final String PROGRAM2_CODE = "P2";
   private static final String SUPERVISORY_NODE_CODE = "SN1";
   private static final String WAREHOUSE_CODE = "W1";
+  private static final String USER_API_STRING = "/auth/api/users";
 
   @MockBean
   private UserRepository userRepository;
@@ -567,22 +566,22 @@ public class UserControllerIntegrationTest extends BaseWebIntegrationTest {
     userRequest.setEmail(user.getEmail());
     userRequest.setReferenceDataUserId(user.getId());
 
-    String url = "http://auth:8080/api/users?access_token=" + getToken();
+    final String url = baseUri + "?access_token=" + getToken();
     RestTemplate restTemplate = new RestTemplate();
 
     restTemplate.postForObject(url, userRequest, Object.class);
   }
 
   private UUID passwordResetToken(UUID referenceDataUserId) {
-    String url = "http://auth:8080/api/users/passwordResetToken?userId=" + referenceDataUserId
-        + "&access_token=" + getToken();
+    final String url = baseUri + USER_API_STRING + "/passwordResetToken?userId="
+        + referenceDataUserId + "&access_token=" + getToken();
     RestTemplate restTemplate = new RestTemplate();
 
     return restTemplate.postForObject(url, null, UUID.class);
   }
 
   private AuthUserRequest getAutUserByUsername(String username) {
-    String url = "http://auth:8080/api/users/search/findOneByUsername?username=" + username
+    final String url = baseUri + USER_API_STRING + "/search/findOneByUsername?username=" + username
         + "&access_token=" + getToken();
 
     RestTemplate restTemplate = new RestTemplate();
@@ -590,7 +589,7 @@ public class UserControllerIntegrationTest extends BaseWebIntegrationTest {
   }
 
   private void removeAuthUserByUsername(String username) {
-    String url = "http://auth:8080/api/users/search/findOneByUsername?username=" + username
+    String url = baseUri + USER_API_STRING + "/search/findOneByUsername?username=" + username
         + "&access_token=" + getToken();
 
     RestTemplate restTemplate = new RestTemplate();
@@ -598,7 +597,7 @@ public class UserControllerIntegrationTest extends BaseWebIntegrationTest {
     String href = ((String) ((Map) ((Map) map.get("_links")).get("self")).get("href"));
     String id = href.split("users/")[1];
 
-    url = "http://auth:8080/api/users/" + id + "?access_token=" + getToken();
+    url = baseUri + USER_API_STRING + id + "?access_token=" + getToken();
     restTemplate.delete(url);
   }
 
