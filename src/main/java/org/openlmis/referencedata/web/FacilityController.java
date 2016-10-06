@@ -140,6 +140,11 @@ public class FacilityController extends BaseController {
       @RequestParam(value = "supervisoryNodeId") UUID supervisoryNodeId) {
     Program program = programRepository.findOne(programId);
     SupervisoryNode supervisoryNode = supervisoryNodeRepository.findOne(supervisoryNodeId);
+
+    if (supervisoryNode == null || program == null) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    
     List<SupplyLine> supplyLines = supplyLineService.searchSupplyLines(program, 
         supervisoryNode);
     List<Facility> facilities = supplyLines.stream()
