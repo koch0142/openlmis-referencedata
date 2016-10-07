@@ -146,13 +146,8 @@ public class ProductCategoryController extends BaseController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
       }
       return new ResponseEntity<>(productCategory, HttpStatus.OK);
-
     } else {
-
       Iterable<ProductCategory> productCategories = productCategoryRepository.findAll();
-      if (productCategories == null) {
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-      }
       return new ResponseEntity<>(productCategories, HttpStatus.OK);
     }
   }

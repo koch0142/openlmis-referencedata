@@ -142,7 +142,7 @@ public class FacilityController extends BaseController {
     SupervisoryNode supervisoryNode = supervisoryNodeRepository.findOne(supervisoryNodeId);
 
     if (supervisoryNode == null || program == null) {
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
     
     List<SupplyLine> supplyLines = supplyLineService.searchSupplyLines(program, 

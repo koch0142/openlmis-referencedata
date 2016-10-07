@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("PMD.TooManyMethods")
 public class FacilityControllerIntegrationTest extends BaseWebIntegrationTest {
   private static final String ACCESS_TOKEN = "access_token";
   private static final String RESOURCE_URL = "/api/facilities";
@@ -92,6 +93,49 @@ public class FacilityControllerIntegrationTest extends BaseWebIntegrationTest {
       assertTrue(searchedFacilities.contains(facility));
       assertNotEquals(facility, additionalSupplyLine.getSupplyingFacility());
     }
+  }
+
+  @Test
+  public void shouldReturnBadRequestWhenSearchingForSupplyingDepotsWithNotExistingSupervisorNode() {
+
+    Program searchedProgram = generateProgram();
+    supervisoryNodeId = UUID.randomUUID();
+
+    given(programRepository.findOne(programId)).willReturn(searchedProgram);
+    given(supervisoryNodeRepository.findOne(supervisoryNodeId)).willReturn(null);
+
+
+    restAssured.given()
+        .queryParam("programId", programId)
+        .queryParam("supervisoryNodeId", supervisoryNodeId)
+        .queryParam(ACCESS_TOKEN, getToken())
+        .when()
+        .get(SUPPLYING_URL)
+        .then()
+        .statusCode(400);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnBadRequestWhenSearchingForSupplyingDepotsWithNotExistingProgram() {
+
+    SupervisoryNode searchedSupervisoryNode = generateSupervisoryNode();
+    programId = UUID.randomUUID();
+
+    given(programRepository.findOne(programId)).willReturn(null);
+    given(supervisoryNodeRepository.findOne(supervisoryNodeId)).willReturn(searchedSupervisoryNode);
+
+    restAssured.given()
+        .queryParam("programId", programId)
+        .queryParam("supervisoryNodeId", supervisoryNodeId)
+        .queryParam(ACCESS_TOKEN, getToken())
+        .when()
+        .get(SUPPLYING_URL)
+        .then()
+        .statusCode(400);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
   private SupplyLine generateSupplyLine() {
